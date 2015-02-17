@@ -1,0 +1,20 @@
+uol虚拟机开发手册
+
+1. 首先下载Pelles C， 如果官网打不开， 可以在百度上搜索。官网地址为 www.christian-heffner.de
+2. 克隆uol_vm项目，进入win32_uol目录，用pelles c打开win32_uol.ppj
+3. 在vm.c文件中的int vmLoadFile(MicroVM* vm)函数中修改加载uol执行文件地址。运行即可。
+
+虚拟机文件主要有一下几个文件:
+
+虚拟机头文件
+vm.h
+虚拟机错误码头文件
+errcode.h
+虚拟机指令头文件
+instruction.h
+虚拟机主文件
+vm.c
+API表
+nativetable.c
+系统相关API函数
+vmSys.c
