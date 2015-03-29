@@ -202,21 +202,21 @@ static LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 
 static void Main_OnMouseLButtonDown(HWND hWnd, BOOL b,int x, int y, WPARAM wParam)
 {
-	/*TouchX = x;
-       TouchY = y ;
-	printf("x = %d y = %d ",TouchX,TouchY);
-	isTouch = 1;*/
+	TouchX = x;
+    TouchY = y ;
+	//printf("x = %d y = %d ",TouchX,TouchY);
+	isTouch = 1;
 }
 
 static void Main_OnMouseLButtonUp()
 {
-	//isTouch = 0;
+	isTouch = 0;
 }
 
 static void Main_OnMouseMove(HWND hWnd, int x, int y, WPARAM wParam)
 {
-	//TouchX = x;
-    //TouchY = y ;
+	TouchX = x;
+    TouchY = y ;
 }
 
 /****************************************************************************
@@ -239,7 +239,7 @@ static void Main_OnPaint(HWND hwnd)
     GetClientRect(hwnd, &rc);
     DrawText(ps.hdc, _T("Hello, Windows!"), -1, &rc, DT_SINGLELINE|DT_CENTER|DT_VCENTER);
     EndPaint(hwnd, &ps);*/
-	/*PAINTSTRUCT ps;
+	PAINTSTRUCT ps;
 	HDC current_hdc = BeginPaint (Global_hwnd, &ps) ;
 	int i,j;
 	
@@ -248,7 +248,7 @@ static void Main_OnPaint(HWND hwnd)
 		for(j=0;j<320;j++)
 			SetPixel (current_hdc, i, j, lcd_buf[i+240*j]) ;
 	}
-	EndPaint(Global_hwnd, &ps);*/
+	EndPaint(Global_hwnd, &ps);
 }
 
 /****************************************************************************

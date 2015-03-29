@@ -54,6 +54,7 @@ CELL Sys_System_int2Str(MicroVM* vm, CELL* params)
 {
  	int32_t i = params[0].ival;
  	CELL res;
+	memset(strBuf,0,32);
 	sprintf(strBuf, "%d", i);
 	strObj.classId = vm->stringClassId;
 	strArray.addr = strBuf;
@@ -77,6 +78,8 @@ CELL Sys_System_hex2Str(MicroVM* vm, CELL* params)
 	res.addr = &strObj;
   	return res;
 }
+
+
 
 CELL Sys_System_long2Str(MicroVM* vm, CELL* params)
 {
@@ -175,4 +178,11 @@ CELL Sys_System_sleep(MicroVM* vm, CELL* params)
 	return res;
 }
 
+CELL sys_System_printStackIndex(MicroVM* vm, CELL* params)
+{
+ 	int32_t i = params[0].ival;
+ 	CELL res;
+	printf("%x\n", vm->sp->ival);
+  	return res;
+}
 

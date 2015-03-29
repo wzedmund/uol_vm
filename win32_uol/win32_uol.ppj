@@ -32,6 +32,7 @@ win32_uol.exe: \
 	output\main.res \
 	output\nativetable.obj \
 	output\vm.obj \
+	output\vmLcd.obj \
 	output\vmSys.obj
 	$(LINK) $(LINKFLAGS) -out:"$@" $**
 
@@ -82,6 +83,16 @@ output\vmSys.obj: \
 	vm.h
 	$(CC) $(CCFLAGS) "$!" -Fo"$@"
 
-.SILENT:
+# 
+# Build vmLcd.obj.
+# 
+output\vmLcd.obj: \
+	vmLcd.c \
+	errcode.h \
+	font.h \
+	vm.h
+	$(CC) $(CCFLAGS) "$!" -Fo"$@"
 
 .EXCLUDEDFILES:
+
+.SILENT:

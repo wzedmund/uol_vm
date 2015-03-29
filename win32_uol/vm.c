@@ -20,9 +20,10 @@ error_t vmInit(MicroVM* vm)
 	Array* array = NULL;
 	uint8_t *pStr;
 	
+	
 	//get address index of opcode
 	len  = *(uint32_t*)vm->pOpcodeAddr;
-	//get offset address of string pool·
+	//get offset address of string pool?
 	addr = *(uint32_t*)(vm->pOpcodeAddr+VM_STRPOOL_ADDR_OFFSET);
 	pStr = vm->pOpcodeAddr+addr;
 
@@ -79,9 +80,9 @@ error_t vmInit(MicroVM* vm)
 	return VM_OK;
 }
 
-MicroVM* intVm;
-int prio = 1;
 
+int prio = 1;
+MicroVM* intVm;
 int task_res;
 
 error_t vmRun(MicroVM* vm)
@@ -95,6 +96,7 @@ error_t vmRun(MicroVM* vm)
 	register Obj* strpool;
 	register CELL* pStatic;
 	register Trycatch* errSp;
+	register CELL*  inv;
 
 	Obj* temp_obj;
 	Obj* temp_obj1;
@@ -106,8 +108,7 @@ error_t vmRun(MicroVM* vm)
 	CELL* temp_param;
 	CELL* temp_local;
 	Array* temp_array;
-	Invoke* invoke;
-	Invoke* tempInvoke;
+	
 	
 	int64_t temp64_value;
 	int32_t temp32_value;
@@ -137,18 +138,17 @@ error_t vmRun(MicroVM* vm)
 	spHigh = pStackAddr+(stackSize/4)-1;
 	spLow  = pStackAddr;
 	errSp = vm->errSp;
-	
-	invoke = malloc(sizeof(Invoke));
-	invoke->data = data;
-
+	inv = spHigh;
 	while(1)
 	{
 	  	//check if stack overflows
-		if((sp>=(spHigh)||sp<spLow))
+		if((sp>=(inv)||sp<spLow))
 		{
 			error = VM_STACK_OVERFLOW_ERR;
 			goto VM_ERROR;
 		}
+		vm->sp = sp;
+
 		switch(*pc)
 	 	{
 			case Nop:pc++;break;
@@ -491,7 +491,7 @@ error_t vmRun(MicroVM* vm)
 						param =(CELL*)sp->addr;
 						sp--;
 						pc=(uint8_t*)((sp-2)->addr);
-				    		sp=sp-sp->ival-(sp-1)->ival-3;
+				    	sp=sp-sp->ival-(sp-1)->ival-3;
 						break;
 			case ReturnBit8:
 							temp32_value = sp->ival;
@@ -588,7 +588,9 @@ error_t vmRun(MicroVM* vm)
 			case StoreBit16Data: (data->var+*(uint8_t*)(pc+1))->ival=(sp->ival&CAST_BIT16);sp--;pc=pc+2;break;		
 			case StoreBit16Code: *(int16_t*)(*(uint16_t*)(pc+1))=(sp->ival&CAST_BIT16);sp--;pc=pc+3;break;
 			//object instantiation
-			case New:   sp++;
+			case New:   
+						
+						sp++;
 						temp32_value = *(uint32_t*)(pc+1);
 						temp16_value =  *(uint32_t*)(pc+5);
 						temp_obj=(Obj*)malloc(sizeof(Obj));
@@ -645,8 +647,11 @@ error_t vmRun(MicroVM* vm)
 							memset(temp_obj->parent,0,sizeof(int)*temp16_value);
 						}
 						sp->addr = temp_obj;
-						pc=pc+10;break;
+						pc=pc+10;
+						
+						break;
 				case NewModule:  
+						
 						sp++;
 						temp32_value = *(uint32_t*)(pc+1);
 						temp_obj=(Obj*)malloc(sizeof(Obj));
@@ -685,7 +690,9 @@ error_t vmRun(MicroVM* vm)
 							memset(temp_obj->var,0,sizeof(int)*temp32_value);
 						}
 						sp->addr = temp_obj;
-						pc=pc+9;break;
+						pc=pc+9;
+						
+						break;
 			//object deletion
 			case Free:  
 						temp_obj = (Obj*)sp->addr;
@@ -705,11 +712,15 @@ error_t vmRun(MicroVM* vm)
 			case PushObject:
 						if(sp->addr!=NULL)
 						{
-							tempInvoke = malloc(sizeof(Invoke));
+							/*tempInvoke = malloc(sizeof(Invoke));
 							tempInvoke->prevLink = (CELL*)invoke;
 							tempInvoke->data = (Obj*)sp->addr;
 							data = (Obj*)sp->addr;
-							invoke = tempInvoke;
+							invoke = tempInvoke;*/
+									
+							inv->addr = data;
+							inv--;
+							data=(Obj*)sp->addr;
 							sp--;
 						}
 						else
@@ -731,14 +742,18 @@ error_t vmRun(MicroVM* vm)
 							temp16_value = *(pc+1);
 							if((sp-temp16_value)->addr!=NULL)
 							{
-								tempInvoke = malloc(sizeof(Invoke));
+								/*tempInvoke = malloc(sizeof(Invoke));
 								tempInvoke->prevLink = (CELL*)invoke;
 								data = (Obj*)(sp-temp16_value)->addr;
 								tempInvoke->data = data;
-								invoke = tempInvoke;
+								invoke = tempInvoke;*/
+								
+								inv->addr=data;
+								inv--;
+								data=(Obj*)(sp-temp16_value)->addr;
 							}
 							else
-							{
+							{			
 								error = VM_NULL_POINTER_ERR;
 								if(errSp!=NULL)
 								{
@@ -753,10 +768,13 @@ error_t vmRun(MicroVM* vm)
 			case PopObject: 
 						if(data!=NULL)
 						{
-							tempInvoke = invoke;
+							/*tempInvoke = invoke;
 							invoke = (Invoke*)tempInvoke->prevLink;
 							data = invoke->data;
-							free(tempInvoke);
+							free(tempInvoke);*/
+							inv++;
+							data=(Obj*)inv->addr;
+							
 						}
 						else
 						{
@@ -1161,8 +1179,13 @@ error_t vmRun(MicroVM* vm)
 			//stack manipulation
 			case Dup:(sp+1)->ival = sp->ival;sp++;pc++;break;
 			case Sup:sp++;pc++;break;
+			case Sdn:
+				sp-=1;
+				pc++;
+				break;
 			case Sup2:sp+=2;pc++;break;
-			case Sdn:sp--;pc++;break;
+		
+			
 			case Sdn2:sp-=2;pc++;break;
 			//get method physical address
 			case GetAddr: sp++;sp->ival=*(uint32_t*)(pc+1);pc=pc+5;break;
@@ -1170,11 +1193,14 @@ error_t vmRun(MicroVM* vm)
 			case CallAbstract:
 					if(data->data!=NULL)
 					{
-						tempInvoke = malloc(sizeof(Invoke));
+						/*tempInvoke = malloc(sizeof(Invoke));
 						tempInvoke->prevLink = (CELL*)invoke;
-						tempInvoke->data = data;
+						tempInvoke->data = (Obj*)(data->data);
 						data = (Obj*)(data->data);
-						invoke = tempInvoke;
+						invoke = tempInvoke;*/
+						inv->addr = data;
+						inv--;
+						data=(Obj*)data->data;
 					}
 					else
 					{
@@ -1296,7 +1322,7 @@ error_t vmRun(MicroVM* vm)
 				}
 				else
 				{		
-					intVm->handle = CreateThread(NULL, 512, vmRun, intVm, 0, NULL);
+					intVm->handle = CreateThread(NULL, 2048, vmRun, intVm, 0, NULL);
 				}
 				pc+=7;
 				break;
@@ -1304,7 +1330,6 @@ error_t vmRun(MicroVM* vm)
 			//return from interrupt method. This can be customized in your way.
 			case ReturnI:
 				free(vm->pStackAddr);
-				free(invoke);
 				CloseHandle(vm->handle);
 				error = VM_EXIT;
 				goto GOTO_VM_EXIT;
@@ -1392,7 +1417,6 @@ error_t vmRun(MicroVM* vm)
 	printf("Error code = %d\r\n",error);
 	printf("pc = %d\r\n",*pc);
 	GOTO_VM_EXIT:
-	free(invoke);
 	if(vm->stackSize)
 		free(vm->pStackAddr);
 	if(vm->staticSize)
@@ -1412,7 +1436,7 @@ int vmLoadFile(MicroVM* vm)
 	uint8_t *buffer;
 	
 	//load opcodes
-	file = fopen("d:/UOL/compiler_future/UOL_Lib/output.bin","rb");
+	file = fopen("d:/UOL/uol_lib/output.bin","rb");
 	if (file == NULL) 
 	{
 		printf("can't open file\r\n");

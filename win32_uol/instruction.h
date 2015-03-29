@@ -123,6 +123,7 @@
 #define	FloatToDouble	114
 #define	ObjToObj	115
 #define	ObjToClass	116
+
 #define	Jump	117
 #define	JumpZero	118
 #define	JumpNotZero	119

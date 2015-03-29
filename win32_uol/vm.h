@@ -100,6 +100,7 @@ typedef struct MICROVM
 	CELL* handle;		   //thread handle
 	uint8_t* pc;           //program counter
 	uint32_t stringClassId;//string class id
+	CELL* sp;
 }MicroVM;
 
 
