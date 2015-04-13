@@ -8,6 +8,8 @@
 #include "vm.h"
 #include "instruction.h"
 
+Obj *strPool;
+
 error_t vmInit(MicroVM* vm)
 {
 	int addr;
@@ -15,8 +17,7 @@ error_t vmInit(MicroVM* vm)
 	int i;
 	int strLen;
 	int index;
-	
-	Obj* strPool = NULL;
+	Obj* tempStr;
 	Array* array = NULL;
 	uint8_t *pStr;
 	
@@ -46,11 +47,12 @@ error_t vmInit(MicroVM* vm)
 		{
 			 strLen = *(int32_t*)pStr;
 			 pStr+=4;
-			 (strPool+i)->var = (CELL*)malloc(2*sizeof(CELL));
-			 (strPool+i)->classId = vm->stringClassId;
-			 *(int*)((strPool+i)->var+1)= strLen;
-			 (strPool+i)->var->addr = (Array*)malloc(sizeof(Array));
-			 array = (strPool+i)->var->addr;
+			 tempStr = (strPool+i);
+			 tempStr->var = (CELL*)malloc(2*sizeof(CELL));
+			 tempStr->classId = vm->stringClassId;
+			 *(int*)(tempStr->var+1)= strLen;
+			 tempStr->var->addr = (Array*)malloc(sizeof(Array));
+			 array = tempStr->var->addr;
 			 array->addr = (uint8_t*)malloc(strLen*sizeof(char));
 			 array->len = strLen;
 			 for(index = 0;index<strLen;index++)
@@ -61,7 +63,6 @@ error_t vmInit(MicroVM* vm)
 			 i++;
 		}
 	}
-	vm->pStrPool = strPool;
 	//get size of static memory
 	len  =   *(uint32_t*)(vm->pOpcodeAddr+VM_STATIC_LEN_OFFSET);
 	vm->staticSize = len;
@@ -84,19 +85,19 @@ error_t vmInit(MicroVM* vm)
 int prio = 1;
 MicroVM* intVm;
 int task_res;
-
+extern CRITICAL_SECTION cs;
 error_t vmRun(MicroVM* vm)
 {
-	register CELL*  sp;
-	register CELL*  param;
-	register Obj*  data = NULL;
-	register CELL*  local;
-	register uint8_t*  pc;
-	register uint8_t*  pcBaseAddr;
-	register Obj* strpool;
-	register CELL* pStatic;
-	register Trycatch* errSp;
-	register CELL*  inv;
+	CELL*  sp;
+	CELL*  param;
+	Obj*  data = NULL;
+	CELL*  local;
+	uint8_t*  pc;
+	uint8_t*  pcBaseAddr;
+	Obj* strpool;
+	CELL* pStatic;
+	Trycatch* errSp;
+	CELL*  inv;
 
 	Obj* temp_obj;
 	Obj* temp_obj1;
@@ -134,21 +135,21 @@ error_t vmRun(MicroVM* vm)
 	local = sp;
 	sp = sp + vm->stackOffset;
 	nativeTable = vm->nativeTable;
-	strpool=vm->pStrPool;
 	spHigh = pStackAddr+(stackSize/4)-1;
 	spLow  = pStackAddr;
 	errSp = vm->errSp;
 	inv = spHigh;
+    strpool = strPool;
 	while(1)
-	{
-	  	//check if stack overflows
+	{ 	
+		//check if stack overflows
 		if((sp>=(inv)||sp<spLow))
 		{
 			error = VM_STACK_OVERFLOW_ERR;
 			goto VM_ERROR;
 		}
-		vm->sp = sp;
-
+		//vm->sp = sp;
+		
 		switch(*pc)
 	 	{
 			case Nop:pc++;break;
@@ -1300,7 +1301,6 @@ error_t vmRun(MicroVM* vm)
 				intVm->pOpcodeAddr = vm->pOpcodeAddr;
 				intVm->pDataAddr = data;
 				intVm->pStaticAddr = vm->pStaticAddr;
-				intVm->pStrPool = vm->pStrPool;
 				intVm->nativeTable = vm->nativeTable;
 				if(intVm->stackSize == 0)
 					intVm->stackSize = THREAD_STACK_SIZE;
@@ -1322,7 +1322,8 @@ error_t vmRun(MicroVM* vm)
 				}
 				else
 				{		
-					intVm->handle = CreateThread(NULL, 2048, vmRun, intVm, 0, NULL);
+					intVm->handle = CreateThread(NULL, 0, vmRun, intVm, prio++, NULL);
+					WaitForSingleObject(intVm->handle, 200);
 				}
 				pc+=7;
 				break;
@@ -1367,6 +1368,8 @@ error_t vmRun(MicroVM* vm)
 				}
 				if(((Obj*)(sp-1)->addr)->classId!=sp->ival)
 				{
+					//temp32_value = ((Obj*)(sp-1)->addr)->classId;
+					//printf("%d %d",temp32_value,sp->ival);
 					error = VM_INVALID_OBJ_CAST;
 					if(errSp!=NULL)
 					{
@@ -1402,9 +1405,35 @@ error_t vmRun(MicroVM* vm)
 			//module storage
 			case LoadModule:
 				++sp;
+				if(data==NULL||(data!=NULL&&((Obj*) data)->parent==NULL))
+				{
+					error = VM_NULL_POINTER_ERR;
+					if(errSp!=NULL)
+					{
+						sp++;
+						sp->ival = error;
+						pc = pcBaseAddr + errSp->addr;
+						break;
+					}
+					else
+						goto VM_ERROR;
+				}
 				sp->ival=*(int32_t*)(((Obj*) data)->parent+*(uint8_t*)(pc+1));
 				pc+=2;break;
 			case StoreModule:
+				if(data==NULL||(data!=NULL&&((Obj*) data)->parent==NULL))
+				{
+					error = VM_NULL_POINTER_ERR;
+					if(errSp!=NULL)
+					{
+						sp++;
+						sp->ival = error;
+						pc = pcBaseAddr + errSp->addr;
+						break;
+					}
+					else
+						goto VM_ERROR;
+				}
 				*(int32_t*)(((Obj*) data)->parent+ *(uint8_t*)(pc+1))=sp->ival;
 				sp--;
 				pc+=2;break;
@@ -1414,8 +1443,8 @@ error_t vmRun(MicroVM* vm)
 	   	}
 	}
 	VM_ERROR:
-	printf("Error code = %d\r\n",error);
-	printf("pc = %d\r\n",*pc);
+	printf("Error code = %d\n",error);
+	printf("pc = %d\n",*pc);
 	GOTO_VM_EXIT:
 	if(vm->stackSize)
 		free(vm->pStackAddr);
@@ -1502,6 +1531,7 @@ int vmStart(MicroVM* vm)
 	}
 	vm->stackOffset = 0;
 	vm->stringClassId= *(uint32_t*)(vm->pOpcodeAddr+VM_STRING_CLASS_TYPE_OFFSET);
+	printf("String class id: %d\n",vm->stringClassId);
 	//return stack allocation error
 	if (vm->pStackAddr == NULL)
 	{

@@ -70,6 +70,18 @@ CELL graphic_TouchDispatcher_touchX(MicroVM* vm, CELL* params);
 //int touchY()
 CELL graphic_TouchDispatcher_touchY(MicroVM* vm, CELL* params);
 
+CELL graphic_Graphic_getColor(MicroVM* vm, CELL* params);
+
+CELL graphic_Graphic_drawLine(MicroVM* vm, CELL* params);
+
+CELL graphic_Graphic_drawChar(MicroVM* vm, CELL* params);
+
+CELL graphic_Graphic_fillCircle(MicroVM* vm, CELL* params);
+
+CELL graphic_Graphic_drawRect(MicroVM* vm, CELL* params);
+
+CELL graphic_Graphic_drawCircle(MicroVM* vm, CELL* params);
+
 NativeMethod Natives2[] = 
 {
 	graphic_Graphic_getWidth,
@@ -78,11 +90,16 @@ NativeMethod Natives2[] =
 	graphic_Graphic_setPoint,
 	graphic_Graphic_getPoint,
 	graphic_Graphic_fill,
-	graphic_Graphic_drawChar,
+	graphic_Graphic_getColor,
 	graphic_Graphic_clear,
 	graphic_TouchDispatcher_isTouch,
 	graphic_TouchDispatcher_touchX,
 	graphic_TouchDispatcher_touchY,
+	graphic_Graphic_drawLine,
+	graphic_Graphic_drawChar,
+	graphic_Graphic_fillCircle,
+	graphic_Graphic_drawRect,
+	graphic_Graphic_drawCircle,
 };
 
 NativeMethod* nativeTable[] = 
@@ -104,7 +121,7 @@ int isNativeValid(int id1, int id2)
       if (id2 >= 0) return 0;
       else return Natives1[id2] != NULL;
 	case 2:
-      if (id2 >= 11) return 0;
+      if (id2 >= 16) return 0;
       else return Natives2[id2] != NULL;	
     default:
        return 0;

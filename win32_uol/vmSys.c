@@ -16,6 +16,7 @@ CELL Sys_PrintStream_printByte(MicroVM* vm, CELL* params)
   uint8_t  pu8Buf  = (uint8_t )params[0].ival;
   CELL res;	
   printf("%c",pu8Buf);
+  //fflush(stdout);
   return res;
 }
 

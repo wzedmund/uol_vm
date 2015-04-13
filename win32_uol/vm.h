@@ -91,7 +91,6 @@ typedef struct MICROVM
 	CELL* pStackAddr;      //local stack pointer
 	CELL* pLocalAddr;	   //local memory pointer
 	Obj* pDataAddr;	       //data memory pointer
-	Obj* pStrPool;         //string pool pointer
 	CELL* pStaticAddr;     //static memory pointer
 	Trycatch* errSp;	   //try-catch stack pointer
 	NativeMethod** nativeTable; //native map pointer

@@ -1,53 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings version="1.0">
-	<category name="errcode.h">
-		<category name="Window">
-			<property name="Left" type="integer">25</property>
-			<property name="Top" type="integer">25</property>
-			<property name="Right" type="integer">1037</property>
-			<property name="Bottom" type="integer">289</property>
-			<property name="Maximized" type="integer">0</property>
-			<property name="Active" type="integer">0</property>
-		</category>
-	</category>
-	<category name="vm.h">
-		<category name="Window">
-			<property name="Left" type="integer">50</property>
-			<property name="Top" type="integer">50</property>
-			<property name="Right" type="integer">1062</property>
-			<property name="Bottom" type="integer">314</property>
-			<property name="Maximized" type="integer">0</property>
-			<property name="Active" type="integer">0</property>
-		</category>
-	</category>
+	<category name="errcode.h" />
+	<category name="vm.h" />
 	<category name="uolvm.c" />
 	<category name="main.c">
 		<category name="Window">
-			<property name="Left" type="integer">75</property>
-			<property name="Top" type="integer">75</property>
-			<property name="Right" type="integer">1087</property>
-			<property name="Bottom" type="integer">339</property>
+			<property name="Left" type="integer">25</property>
+			<property name="Top" type="integer">25</property>
+			<property name="Right" type="integer">1049</property>
+			<property name="Bottom" type="integer">301</property>
 			<property name="Maximized" type="integer">0</property>
 			<property name="Active" type="integer">0</property>
 		</category>
 	</category>
-	<category name="instruction.h">
-		<category name="Window">
-			<property name="Left" type="integer">100</property>
-			<property name="Top" type="integer">100</property>
-			<property name="Right" type="integer">1112</property>
-			<property name="Bottom" type="integer">364</property>
-			<property name="Maximized" type="integer">0</property>
-			<property name="Active" type="integer">0</property>
-		</category>
-	</category>
+	<category name="instruction.h" />
 	<category name="main.h" />
 	<category name="vmSys.c">
 		<category name="Window">
-			<property name="Left" type="integer">0</property>
-			<property name="Top" type="integer">0</property>
-			<property name="Right" type="integer">1012</property>
-			<property name="Bottom" type="integer">264</property>
+			<property name="Left" type="integer">50</property>
+			<property name="Top" type="integer">50</property>
+			<property name="Right" type="integer">1074</property>
+			<property name="Bottom" type="integer">326</property>
 			<property name="Maximized" type="integer">0</property>
 			<property name="Active" type="integer">0</property>
 		</category>
@@ -55,48 +28,31 @@
 	<category name="vmSerial.c" />
 	<category name="vmLcd.c">
 		<category name="Window">
-			<property name="Left" type="integer">-8</property>
-			<property name="Top" type="integer">-30</property>
-			<property name="Right" type="integer">1151</property>
-			<property name="Bottom" type="integer">361</property>
-			<property name="Maximized" type="integer">1</property>
-			<property name="Active" type="integer">1</property>
+			<property name="Left" type="integer">75</property>
+			<property name="Top" type="integer">75</property>
+			<property name="Right" type="integer">1099</property>
+			<property name="Bottom" type="integer">351</property>
+			<property name="Maximized" type="integer">0</property>
+			<property name="Active" type="integer">0</property>
 		</category>
 	</category>
 	<category name="vm.c">
 		<category name="Window">
-			<property name="Left" type="integer">50</property>
-			<property name="Top" type="integer">50</property>
-			<property name="Right" type="integer">1062</property>
-			<property name="Bottom" type="integer">314</property>
-			<property name="Maximized" type="integer">0</property>
-			<property name="Active" type="integer">0</property>
-		</category>
-		<category name="Breakpoints">
-			<category name="Breakpoint1">
-				<property name="Line" type="integer">1170</property>
-				<property name="Enabled" type="integer">1</property>
-				<property name="HitCount" type="integer">0</property>
-				<property name="Expression" type="string"></property>
-			</category>
+			<property name="Left" type="integer">-8</property>
+			<property name="Top" type="integer">-30</property>
+			<property name="Right" type="integer">1167</property>
+			<property name="Bottom" type="integer">377</property>
+			<property name="Maximized" type="integer">1</property>
+			<property name="Active" type="integer">1</property>
 		</category>
 	</category>
-	<category name="font.h">
-		<category name="Window">
-			<property name="Left" type="integer">75</property>
-			<property name="Top" type="integer">75</property>
-			<property name="Right" type="integer">1087</property>
-			<property name="Bottom" type="integer">339</property>
-			<property name="Maximized" type="integer">0</property>
-			<property name="Active" type="integer">0</property>
-		</category>
-	</category>
+	<category name="font.h" />
 	<category name="nativetable.c">
 		<category name="Window">
-			<property name="Left" type="integer">100</property>
-			<property name="Top" type="integer">100</property>
-			<property name="Right" type="integer">1112</property>
-			<property name="Bottom" type="integer">364</property>
+			<property name="Left" type="integer">0</property>
+			<property name="Top" type="integer">0</property>
+			<property name="Right" type="integer">1024</property>
+			<property name="Bottom" type="integer">276</property>
 			<property name="Maximized" type="integer">0</property>
 			<property name="Active" type="integer">0</property>
 		</category>

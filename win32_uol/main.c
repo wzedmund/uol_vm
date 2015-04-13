@@ -43,11 +43,15 @@ extern DWORD lcd_buf[240*320];
 extern int TouchX;
 extern int TouchY;
 extern char isTouch;
-DWORD WINAPI ThreadFun(LPVOID pM)  
+
+CRITICAL_SECTION cs;
+
+DWORD WINAPI ThreadFun()  
 {  
 	MicroVM* vm = malloc(sizeof(MicroVM));
  	vmStart(vm);
-	vmRun(vm);
+	vm->handle = CreateThread(NULL, 0, vmRun, vm, 0, NULL);
+	WaitForSingleObject(vm->handle, 100); 
 	return 0;  
 } 
 
@@ -117,15 +121,15 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
     wc.cbWndExtra = 0;
     if (!RegisterClass(&wc))
         return 1;
-
+	//InitializeCriticalSection(&cs);
     /* Create the main window */
     hwnd = CreateWindow(_T("win32_uoClass"),
         _T("win32_uol Program"),
-        WS_OVERLAPPEDWINDOW|WS_HSCROLL|WS_VSCROLL,
+        WS_EX_COMPOSITED|WS_OVERLAPPED   |   WS_SYSMENU   |WS_MINIMIZEBOX,
         0,
         0,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
+        240,
+        320,
         NULL,
         NULL,
         ghInstance,
@@ -139,7 +143,8 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLi
     
     Global_hwnd = hwnd;
     /*create a thread*/
-    HANDLE handle = CreateThread(NULL, 0, ThreadFun, NULL, 0, NULL);
+    ThreadFun();
+	
     /* Pump messages until we are done */
 #if 0
     /* "Politically correct" code -- SEE MICROSOFT DOCUMENTATION */
